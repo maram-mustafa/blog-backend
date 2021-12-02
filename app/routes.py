@@ -26,15 +26,18 @@ def post_details(id):
 @app.route('/add', methods=['POST'])
 @cross_origin()
 def add_article():
+    data = request.get_json()
     posted_by = request.json['posted_by']
     title = request.json['title']
     body = request.json['body']
     image = request.json['image']
-
     articles = Articles(posted_by, title, body, image)
-    db.session.add(articles)
-    db.session.commit()
-    return article_schema.jsonify(articles)
+    if len(posted_by) > 4 and len(body) > 99 and len(image) > 0:
+        db.session.add(articles)
+        db.session.commit()
+        return article_schema.jsonify(articles)
+    else:
+        return article_schema.jsonify({"Error": "Can't Added"})
 
 
 # update on article
@@ -65,5 +68,5 @@ def article_delete(id):
     article = Articles.query.get_or_404(id)
     db.session.delete(article)
     db.session.commit()
-    return article_schema.jsonify(article)
+    return jsonify({"message": "Deleted"})
 
